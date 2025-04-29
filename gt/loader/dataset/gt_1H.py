@@ -81,31 +81,8 @@ class gt1H(InMemoryDataset):
                 label_tensor[atom][0] = mol.GetAtomWithIdx(atom).GetAtomicNum()
             # todo 记录所含H的数目
             for atom in range(mol.GetNumAtoms()):
-                if mol.GetAtomWithIdx(atom).GetAtomicNum() == 1:
-                    label_tensor[atom][2] = 0
-                else:
-                    h_count = sum(1 for nei in mol.GetAtomWithIdx(atom).GetNeighbors() if nei.GetSymbol() == 'H')
-                    label_tensor[atom][2] = h_count
-
-            label_tensor_after = assign_labels_to_connected_atoms(mol, label_tensor)
-            mol_withoutHs = Chem.RemoveHs(mol)
-
-            mask_hs = mask_H(label_tensor_after)
-            label_tensor_after = label_tensor_after[mask_hs]
-
-            graph = mol2graph(mol_withoutHs)
-            mask_other  = mask_others(label_tensor_after)
-            infer_mask = infer_mask_fun(label_tensor_after)
-
-            y = label_tensor_after[:, 1]
-            x = torch.from_numpy(graph['node_feat']).to(torch.long)
-            edge_index = torch.from_numpy(graph['edge_index']).to(torch.long)
-            edge_attr = torch.from_numpy(graph['edge_feat']).to(torch.long)
-
-            data.__num_nodes__ = int(graph['num_nodes'])
-            data.x = x
-            data.edge_index = edge_index
-            data.edge_attr = edge_attr
+                h_count = sum([1 for nei in mol.GetAtomWithIdx(atom).GetNeighbors() if nei.GetSymbol() == 'H'])
+                label_tensor[atom][2] = h_count
 
             label_tensor_after = assign_labels_to_connected_atoms(mol, label_tensor)
             mol_withoutHs = Chem.RemoveHs(mol)
@@ -141,6 +118,7 @@ class gt1H(InMemoryDataset):
 
 def assign_labels_to_connected_atoms(mol, atom_labels_tensor):
     result_tensor = torch.zeros_like(atom_labels_tensor)
+    result_tensor[:, 2] = atom_labels_tensor[:, 2]
     result_tensor[:, 0] = atom_labels_tensor[:, 0]
     # valid_indices 是idx（原子序数）1，H原子，且化学位移大于０
     valid_indices = [i for i, (idx, label, h_count) in enumerate(atom_labels_tensor) if idx == 1 and label > 0]
@@ -203,7 +181,7 @@ def mask_others(x: torch.Tensor):
 def infer_mask_fun(x: torch.Tensor):
     mask = torch.zeros(x.shape[0], dtype=torch.bool)
     for i in range(x.shape[0]):
-        if x[i][2] > 0 and x[i][1] != 1.0000:
+        if x[i][2] > 0 :
         # if x[i][0] == 6.0000:
             mask[i] = True  # C is True
         else:
