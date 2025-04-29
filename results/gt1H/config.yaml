@@ -256,7 +256,7 @@ print: both
 round: 5
 run_dir: results
 run_multiple_splits: []
-seed: 1
+seed: 0
 share:
   dim_in: 1
   dim_out: 1
@@ -296,4 +296,4 @@ wandb:
   name: ''
   project: null
   use: false
-work_dir: /home/hcchen/GT-NMR-code-main
+work_dir: /data/projects/other-project/zhaogx/GT-NMR
