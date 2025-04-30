@@ -140,7 +140,7 @@ name_tag: ''
 num_threads: 6
 num_workers: 0
 optim:
-  base_lr: 0.001
+  base_lr: 0.01
   batch_accumulation: 1
   clip_grad_norm: true
   early_stop_by_lr: false
@@ -256,7 +256,7 @@ print: both
 round: 5
 run_dir: results
 run_multiple_splits: []
-seed: 0
+seed: 7
 share:
   dim_in: 1
   dim_out: 1
@@ -265,7 +265,7 @@ tensorboard_agg: true
 tensorboard_each_run: true
 train:
   auto_resume: false
-  batch_size: 256
+  batch_size: 512
   ckpt_best: true
   ckpt_clean: true
   ckpt_period: 100

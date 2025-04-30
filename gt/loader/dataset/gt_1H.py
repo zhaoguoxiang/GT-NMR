@@ -78,7 +78,7 @@ class gt1H(InMemoryDataset):
                     label_tensor[key][1] = value
 
             for atom in range(mol.GetNumAtoms()):
-                label_tensor[atom][0] = mol.GetAtomWithIdx(atom).GetAtomicNum()
+                label_tensor[atom][0] = int(mol.GetAtomWithIdx(atom).GetAtomicNum())
             # todo 记录所含H的数目
             for atom in range(mol.GetNumAtoms()):
                 h_count = sum([1 for nei in mol.GetAtomWithIdx(atom).GetNeighbors() if nei.GetSymbol() == 'H'])
@@ -160,7 +160,7 @@ def assign_labels_to_connected_atoms(mol, atom_labels_tensor):
 def mask_H(x: torch.Tensor):
     mask = torch.zeros(x.shape[0], dtype=torch.bool)
     for i in range(x.shape[0]):
-        if x[i][0] == 1.0000:
+        if x[i][0] == 1:
             mask[i] = False  # H is False
         else:
             mask[i] = True
@@ -170,7 +170,7 @@ def mask_others(x: torch.Tensor):
     mask = torch.zeros(x.shape[0], dtype=torch.bool)
     for i in range(x.shape[0]):
         #! 原始的判断有问题，应该是有H原子相连的mask为true
-        if x[i][2] > 0 and x[i][1] != 1.0000:
+        if x[i][2] > 0:
         # if x[i][1] ==6.0000 and x[i][1] != 1.0000:
             mask[i] = True  # atoms with H are True
         else:
