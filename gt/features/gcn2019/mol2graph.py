@@ -134,21 +134,3 @@ def mol2graph(mol):
     graph['edge_feat'] = edge_attr
 
     return graph
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

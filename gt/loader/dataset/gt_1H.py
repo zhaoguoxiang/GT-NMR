@@ -163,7 +163,7 @@ def mask_others(x: torch.Tensor):
         if x[i][0] == 6.0000 and x[i][1] != 0:
             mask[i] = True  # C with label is True
         else:
-            mask[i] = False
+            mask[i] = True
     return mask
 
 
@@ -173,5 +173,5 @@ def infer_mask_fun(x: torch.Tensor):
         if x[i][0] == 6.0000:
             mask[i] = True  # C is True
         else:
-            mask[i] = False
+            mask[i] = True
     return mask
