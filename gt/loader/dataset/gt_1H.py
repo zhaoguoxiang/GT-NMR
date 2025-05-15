@@ -71,13 +71,14 @@ class gt1H(InMemoryDataset):
             data = Data()
 
             total_num_nodes = mol.GetNumAtoms()
-            label_tensor = torch.zeros(total_num_nodes, 2)
+            label_tensor = torch.zeros(total_num_nodes, 3)
             for data_dict in label:
                 for key, value in data_dict.items():
                     label_tensor[key][1] = value
 
             for atom in range(mol.GetNumAtoms()):
                 label_tensor[atom][0] = mol.GetAtomWithIdx(atom).GetAtomicNum()
+                label_tensor[atom][2] = int(sum(1 for neighbor in mol.GetAtomWithIdx(atom).GetNeighbors() if neighbor.GetAtomicNum() == 1))
 
             label_tensor_after = assign_labels_to_connected_atoms(mol, label_tensor)
             mol_withoutHs = Chem.RemoveHs(mol)
@@ -114,6 +115,7 @@ class gt1H(InMemoryDataset):
 def assign_labels_to_connected_atoms(mol, atom_labels_tensor):
     result_tensor = torch.zeros_like(atom_labels_tensor)
     result_tensor[:, 0] = atom_labels_tensor[:, 0]
+    result_tensor[:, 2] = atom_labels_tensor[:, 2]
     valid_indices = [i for i, (idx, label) in enumerate(atom_labels_tensor) if idx == 1 and label > 0]
     # print(valid_indices)
     labels_sum = {}
@@ -160,18 +162,19 @@ def mask_H(x: torch.Tensor):
 def mask_others(x: torch.Tensor):
     mask = torch.zeros(x.shape[0], dtype=torch.bool)
     for i in range(x.shape[0]):
-        if x[i][0] == 6.0000 and x[i][1] != 0:
+        # if x[i][0] == 6.0000 and x[i][1] != 0:
+        if x[i][2] > 0.0001 and x[i][1] != 0:
             mask[i] = True  # C with label is True
         else:
-            mask[i] = True
+            mask[i] = False
     return mask
 
 
 def infer_mask_fun(x: torch.Tensor):
     mask = torch.zeros(x.shape[0], dtype=torch.bool)
     for i in range(x.shape[0]):
-        if x[i][0] == 6.0000:
+        if x[i][2] > 0.0001 and x[i][1] != 0:
             mask[i] = True  # C is True
         else:
-            mask[i] = True
+            mask[i] = False
     return mask

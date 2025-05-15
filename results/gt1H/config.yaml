@@ -256,7 +256,7 @@ print: both
 round: 5
 run_dir: results
 run_multiple_splits: []
-seed: 7
+seed: 1
 share:
   dim_in: 1
   dim_out: 1
@@ -265,7 +265,7 @@ tensorboard_agg: true
 tensorboard_each_run: true
 train:
   auto_resume: false
-  batch_size: 256
+  batch_size: 128
   ckpt_best: true
   ckpt_clean: true
   ckpt_period: 100
